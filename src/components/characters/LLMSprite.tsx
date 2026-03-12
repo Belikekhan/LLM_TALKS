@@ -4,11 +4,11 @@ import React from "react";
 
 interface LLMSpriteProps {
   color: string;
-  isTalking: boolean;
+  isThinking: boolean;
   side: "left" | "right";
 }
 
-export default function LLMSprite({ color, isTalking, side }: LLMSpriteProps) {
+export default function LLMSprite({ color, isThinking, side }: LLMSpriteProps) {
   return (
     <>
       <style jsx>{`
@@ -16,22 +16,59 @@ export default function LLMSprite({ color, isTalking, side }: LLMSpriteProps) {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-4px); }
         }
-        @keyframes talkShake {
+        @keyframes thinkShake {
           0%, 100% { transform: translateX(0) rotate(0); }
           25% { transform: translateX(-1.5px) rotate(-1deg); }
           75% { transform: translateX(1.5px) rotate(1deg); }
         }
+        @keyframes dotBounce {
+          0%, 80%, 100% { transform: translateY(0); }
+          40% { transform: translateY(-3px); }
+        }
       `}</style>
-      <div
-        style={{
-          animation: isTalking
-            ? "talkShake 0.15s ease-in-out infinite"
-            : "idleBob 3s ease-in-out infinite",
-          filter: `drop-shadow(0 0 ${isTalking ? "12px" : "6px"} ${color})`,
-          transform: side === "right" ? "scaleX(-1)" : "scaleX(1)",
-          transition: "filter 0.3s ease",
-        }}
-      >
+      <div style={{ position: "relative" }}>
+        {/* Thinking Indicator */}
+        {isThinking && (
+          <div
+            style={{
+              position: "absolute",
+              top: "-16px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              display: "flex",
+              gap: "4px",
+              background: "rgba(30, 30, 58, 0.8)",
+              padding: "4px 8px",
+              borderRadius: "12px",
+              border: `1px solid ${color}66`,
+              zIndex: 30,
+            }}
+          >
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                style={{
+                  width: "4px",
+                  height: "4px",
+                  borderRadius: "50%",
+                  backgroundColor: color,
+                  animation: `dotBounce 1.2s ease-in-out ${i * 0.15}s infinite`,
+                }}
+              />
+            ))}
+          </div>
+        )}
+        
+        <div
+          style={{
+            animation: isThinking
+              ? "thinkShake 0.15s ease-in-out infinite"
+              : "idleBob 3s ease-in-out infinite",
+            filter: `drop-shadow(0 0 ${isThinking ? "12px" : "6px"} ${color})`,
+            transform: side === "right" ? "scaleX(-1)" : "scaleX(1)",
+            transition: "filter 0.3s ease",
+          }}
+        >
         <svg
           width="64"
           height="80"
@@ -46,9 +83,9 @@ export default function LLMSprite({ color, isTalking, side }: LLMSpriteProps) {
             cx="32"
             cy="2"
             r="3"
-            fill={isTalking ? "#fff" : color}
+            fill={isThinking ? "#fff" : color}
             style={{
-              filter: isTalking ? `drop-shadow(0 0 4px ${color})` : "none",
+              filter: isThinking ? `drop-shadow(0 0 4px ${color})` : "none",
             }}
           />
 
@@ -61,9 +98,9 @@ export default function LLMSprite({ color, isTalking, side }: LLMSpriteProps) {
             y="20"
             width="7"
             height="7"
-            fill={isTalking ? "#fff" : "#0a0a1a"}
+            fill={isThinking ? "#fff" : "#0a0a1a"}
             style={{
-              filter: isTalking ? `drop-shadow(0 0 3px #fff)` : "none",
+              filter: isThinking ? `drop-shadow(0 0 3px #fff)` : "none",
             }}
           />
           <rect
@@ -71,9 +108,9 @@ export default function LLMSprite({ color, isTalking, side }: LLMSpriteProps) {
             y="20"
             width="7"
             height="7"
-            fill={isTalking ? "#fff" : "#0a0a1a"}
+            fill={isThinking ? "#fff" : "#0a0a1a"}
             style={{
-              filter: isTalking ? `drop-shadow(0 0 3px #fff)` : "none",
+              filter: isThinking ? `drop-shadow(0 0 3px #fff)` : "none",
             }}
           />
 
@@ -82,7 +119,7 @@ export default function LLMSprite({ color, isTalking, side }: LLMSpriteProps) {
             x="27"
             y="31"
             width="10"
-            height={isTalking ? "5" : "2"}
+            height={isThinking ? "5" : "2"}
             fill="#0a0a1a"
             rx="1"
           />
@@ -112,6 +149,7 @@ export default function LLMSprite({ color, isTalking, side }: LLMSpriteProps) {
           <rect x="33" y="74" width="11" height="5" rx="2" fill={color} opacity={0.5} />
         </svg>
       </div>
+    </div>
     </>
   );
 }

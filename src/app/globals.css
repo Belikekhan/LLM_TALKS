@@ -13,6 +13,13 @@
   --accent: #7c6cd4;
   --accent-glow: #9d8fff;
   --star: #fffde7;
+
+  /* Font Scaling */
+  --fs-xs: 10px;
+  --fs-sm: 12px;
+  --fs-md: 14px;
+  --fs-lg: 18px;
+  --fs-xl: 44px;
 }
 
 * {

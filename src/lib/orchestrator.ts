@@ -12,6 +12,7 @@ export function useOrchestrator(config: ConversationConfig | null) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentSpeaker, setCurrentSpeaker] = useState<"A" | "B" | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isThinking, setIsThinking] = useState<"A" | "B" | null>(null);
   const [turn, setTurn] = useState(0);
   const [running, setRunning] = useState(false);
 
@@ -48,6 +49,7 @@ export function useOrchestrator(config: ConversationConfig | null) {
           console.error("API error:", data.error);
           setIsLoading(false);
           setCurrentSpeaker(null);
+          setIsThinking(null);
           return;
         }
 
@@ -63,11 +65,7 @@ export function useOrchestrator(config: ConversationConfig | null) {
         };
         setMessages((prev) => [...prev, msg]);
 
-        // Add to history - alternate roles so the next model sees the conversation correctly
-        // For model A, its own messages are "assistant" and B's are "user"
-        // For model B, its own messages are "assistant" and A's are "user"
-        // We keep a unified history where A's turns are "assistant" and B's turns are "user"
-        // Then we swap when calling B
+        // Add to history
         historyRef.current = [
           ...historyRef.current,
           { role: speaker === "A" ? "assistant" : "user", content: replyText },
@@ -80,19 +78,28 @@ export function useOrchestrator(config: ConversationConfig | null) {
 
         if (!runningRef.current) return;
 
-        // Wait before next turn
-        const delay = replyText.length * 22 + 1500;
-        await new Promise((resolve) => setTimeout(resolve, delay));
+        // Simulate typing time
+        const typingDelay = replyText.length * 28;
+        await new Promise((resolve) => setTimeout(resolve, typingDelay));
+        
+        if (!runningRef.current) return;
+
+        // Set next speaker to "thinking" state during the 2-second gap
+        const nextSpeaker = speaker === "A" ? "B" : "A";
+        setIsThinking(nextSpeaker);
+        
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        
+        setIsThinking(null);
 
         if (!runningRef.current) return;
 
-        // Next speaker
-        const nextSpeaker = speaker === "A" ? "B" : "A";
         doTurn(nextSpeaker);
       } catch (err) {
         console.error("Orchestrator error:", err);
         setIsLoading(false);
         setCurrentSpeaker(null);
+        setIsThinking(null);
       }
     },
     [config]
@@ -107,6 +114,7 @@ export function useOrchestrator(config: ConversationConfig | null) {
     historyRef.current = [{ role: "user", content: config.topic }];
     turnRef.current = 0;
     setTurn(0);
+    setIsThinking(null);
 
     doTurn("A");
   }, [config, doTurn]);
@@ -114,6 +122,7 @@ export function useOrchestrator(config: ConversationConfig | null) {
   const pause = useCallback(() => {
     runningRef.current = false;
     setRunning(false);
+    setIsThinking(null);
   }, []);
 
   const resume = useCallback(() => {
@@ -133,6 +142,7 @@ export function useOrchestrator(config: ConversationConfig | null) {
     setMessages([]);
     setCurrentSpeaker(null);
     setIsLoading(false);
+    setIsThinking(null);
     setTurn(0);
     historyRef.current = [];
     turnRef.current = 0;
@@ -142,6 +152,7 @@ export function useOrchestrator(config: ConversationConfig | null) {
     messages,
     currentSpeaker,
     isLoading,
+    isThinking,
     turn,
     running,
     start,

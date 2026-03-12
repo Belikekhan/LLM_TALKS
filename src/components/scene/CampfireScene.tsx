@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import PixelContainer from "@/components/layout/PixelContainer";
 import Stars from "@/components/scene/Stars";
 import Moon from "@/components/scene/Moon";
@@ -9,19 +9,19 @@ import Campfire from "@/components/scene/Campfire";
 import LLMSprite from "@/components/characters/LLMSprite";
 import SpeechBubble from "@/components/characters/SpeechBubble";
 import HUD from "@/components/ui/HUD";
-import Transcript from "@/components/ui/Transcript";
-import { Message, ConversationConfig, ConversationMode } from "@/lib/types";
+import ControlToolbar from "@/components/ui/ControlToolbar";
+import { Message, ConversationConfig } from "@/lib/types";
 
 interface CampfireSceneProps {
   config: ConversationConfig;
   messages: Message[];
   currentSpeaker: "A" | "B" | null;
   isLoading: boolean;
+  isThinking: "A" | "B" | null;
   turn: number;
   running: boolean;
   onPause: () => void;
   onResume: () => void;
-  onReset: () => void;
 }
 
 export default function CampfireScene({
@@ -29,17 +29,19 @@ export default function CampfireScene({
   messages,
   currentSpeaker,
   isLoading,
+  isThinking,
   turn,
   running,
   onPause,
   onResume,
-  onReset,
 }: CampfireSceneProps) {
-  const lastMessageA = [...messages].reverse().find((m) => m.speaker === "A");
-  const lastMessageB = [...messages].reverse().find((m) => m.speaker === "B");
+  const queueEndRef = useRef<HTMLDivElement>(null);
 
-  const showBubbleA = currentSpeaker === "A" || (lastMessageA && messages[messages.length - 1]?.speaker === "A");
-  const showBubbleB = currentSpeaker === "B" || (lastMessageB && messages[messages.length - 1]?.speaker === "B");
+  useEffect(() => {
+    if (queueEndRef.current) {
+      queueEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isLoading, currentSpeaker]);
 
   return (
     <PixelContainer>
@@ -57,18 +59,61 @@ export default function CampfireScene({
       <Moon />
       <Trees />
 
-      {/* Ground */}
+      {/* Dark fade at bottom for ground depth without hard edges */}
       <div
         style={{
           position: "absolute",
           bottom: 0,
           left: 0,
           right: 0,
-          height: "18%",
-          background: "linear-gradient(#1a1a2e, #12122a)",
-          borderTop: "2px solid #252540",
+          height: "25%",
+          background: "linear-gradient(to top, #08081a 0%, transparent 100%)",
+          zIndex: 5,
+          pointerEvents: "none",
         }}
       />
+
+      {/* Message Queue (WhatsApp-style) */}
+      <div
+        style={{
+          position: "absolute",
+          top: "80px", // Below ControlToolbar
+          bottom: "35%", // Above characters
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "100%",
+          maxWidth: "800px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "16px",
+          overflowY: "auto",
+          padding: "20px",
+          scrollbarWidth: "none",
+          zIndex: 20,
+        }}
+      >
+        {messages.map((msg, index) => (
+          <SpeechBubble
+            key={msg.id}
+            text={msg.text}
+            color={msg.model.color}
+            side={msg.speaker === "A" ? "left" : "right"}
+            isLoading={false}
+            animate={index === messages.length - 1} // Only animate the newest
+          />
+        ))}
+        {/* Active typing bubble */}
+        {isLoading && currentSpeaker && (
+          <SpeechBubble
+            text=""
+            color={currentSpeaker === "A" ? config.modelA.color : config.modelB.color}
+            side={currentSpeaker === "A" ? "left" : "right"}
+            isLoading={true}
+            animate={true}
+          />
+        )}
+        <div ref={queueEndRef} style={{ height: "20px", flexShrink: 0 }} />
+      </div>
 
       {/* Characters + Campfire row */}
       <div
@@ -86,31 +131,23 @@ export default function CampfireScene({
         }}
       >
         {/* Character A (left) */}
-        <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
-          {showBubbleA && (
-            <SpeechBubble
-              text={lastMessageA?.text || ""}
-              color={config.modelA.color}
-              side="left"
-              isLoading={currentSpeaker === "A" && isLoading}
-            />
-          )}
-          <LLMSprite
-            color={config.modelA.color}
-            isTalking={currentSpeaker === "A"}
-            side="left"
-          />
-          <span
-            style={{
-              fontFamily: "'Press Start 2P', monospace",
-              fontSize: "8px",
-              color: config.modelA.color,
-              marginTop: "8px",
-              textShadow: `0 0 8px ${config.modelA.color}66`,
-            }}
-          >
-            {config.modelA.emoji} {config.modelA.name}
-          </span>
+        <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", zIndex: 15 }}>
+        <LLMSprite
+          color={config.modelA.color}
+          isThinking={isThinking === "A"}
+          side="left"
+        />
+        <span
+          style={{
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: "var(--fs-sm)",
+            color: config.modelA.color,
+            marginTop: "8px",
+            textShadow: `0 0 8px ${config.modelA.color}66`,
+          }}
+        >
+          {config.modelA.emoji} {config.modelA.name}
+        </span>
         </div>
 
         {/* Campfire */}
@@ -119,31 +156,23 @@ export default function CampfireScene({
         </div>
 
         {/* Character B (right) */}
-        <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
-          {showBubbleB && (
-            <SpeechBubble
-              text={lastMessageB?.text || ""}
-              color={config.modelB.color}
-              side="right"
-              isLoading={currentSpeaker === "B" && isLoading}
-            />
-          )}
-          <LLMSprite
-            color={config.modelB.color}
-            isTalking={currentSpeaker === "B"}
-            side="right"
-          />
-          <span
-            style={{
-              fontFamily: "'Press Start 2P', monospace",
-              fontSize: "8px",
-              color: config.modelB.color,
-              marginTop: "8px",
-              textShadow: `0 0 8px ${config.modelB.color}66`,
-            }}
-          >
-            {config.modelB.emoji} {config.modelB.name}
-          </span>
+        <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", zIndex: 15 }}>
+        <LLMSprite
+          color={config.modelB.color}
+          isThinking={isThinking === "B"}
+          side="right"
+        />
+        <span
+          style={{
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: "var(--fs-sm)",
+            color: config.modelB.color,
+            marginTop: "8px",
+            textShadow: `0 0 8px ${config.modelB.color}66`,
+          }}
+        >
+          {config.modelB.emoji} {config.modelB.name}
+        </span>
         </div>
       </div>
 
@@ -152,14 +181,13 @@ export default function CampfireScene({
         mode={config.mode}
         topic={config.topic}
         turn={turn}
+      />
+
+      <ControlToolbar
         running={running}
         onPause={onPause}
         onResume={onResume}
-        onReset={onReset}
       />
-
-      {/* Transcript overlay */}
-      <Transcript messages={messages} />
     </PixelContainer>
   );
 }

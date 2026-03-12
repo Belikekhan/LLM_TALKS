@@ -7,9 +7,16 @@ interface SpeechBubbleProps {
   color: string;
   side: "left" | "right";
   isLoading: boolean;
+  animate?: boolean;
 }
 
-export default function SpeechBubble({ text, color, side, isLoading }: SpeechBubbleProps) {
+export default function SpeechBubble({
+  text,
+  color,
+  side,
+  isLoading,
+  animate = true,
+}: SpeechBubbleProps) {
   const [displayedText, setDisplayedText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const prevTextRef = useRef("");
@@ -21,12 +28,20 @@ export default function SpeechBubble({ text, color, side, isLoading }: SpeechBub
       return;
     }
 
+    if (!animate) {
+      setDisplayedText(text);
+      setIsTyping(false);
+      return;
+    }
+
     if (text === prevTextRef.current) return;
     prevTextRef.current = text;
 
     setIsTyping(true);
     setDisplayedText("");
     let index = 0;
+
+    const intervalTime = 28; // Decent readable speed
 
     const interval = setInterval(() => {
       index++;
@@ -35,17 +50,17 @@ export default function SpeechBubble({ text, color, side, isLoading }: SpeechBub
         clearInterval(interval);
         setIsTyping(false);
       }
-    }, 22);
+    }, intervalTime);
 
     return () => clearInterval(interval);
-  }, [text, isLoading]);
+  }, [text, isLoading, animate]);
 
   return (
     <>
       <style jsx>{`
-        @keyframes bubbleAppear {
-          from { opacity: 0; transform: scale(0.7); }
-          to { opacity: 1; transform: scale(1); }
+        @keyframes messageAppear {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
         }
         @keyframes dotBounce {
           0%, 80%, 100% { transform: translateY(0); }
@@ -54,25 +69,26 @@ export default function SpeechBubble({ text, color, side, isLoading }: SpeechBub
       `}</style>
       <div
         style={{
-          position: "absolute",
-          bottom: "100%",
-          [side === "left" ? "left" : "right"]: "-10px",
+          alignSelf: side === "left" ? "flex-start" : "flex-end",
           marginBottom: "12px",
-          maxWidth: "280px",
-          minWidth: "60px",
-          animation: "bubbleAppear 0.25s ease-out",
+          width: "480px",
+          maxWidth: "85vw",
+          animation: animate ? "messageAppear 0.3s ease-out" : "none",
         }}
       >
-        {/* Bubble */}
         <div
           style={{
             background: "#1e1e3a",
             border: `2px solid ${color}`,
             borderRadius: "8px",
+            borderBottomLeftRadius: side === "left" ? "0" : "8px",
+            borderBottomRightRadius: side === "right" ? "0" : "8px",
             padding: "10px 14px",
             fontFamily: "'Press Start 2P', monospace",
-            fontSize: "11px",
-            lineHeight: "1.7",
+            fontSize: "var(--fs-md)",
+            lineHeight: "1.8",
+            textAlign: "left",
+            overflowWrap: "anywhere",
             color: "#e8dcc8",
             position: "relative",
             boxShadow: `0 0 10px ${color}33`,
@@ -109,19 +125,6 @@ export default function SpeechBubble({ text, color, side, isLoading }: SpeechBub
             </span>
           )}
         </div>
-        {/* Tail */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: "-8px",
-            [side === "left" ? "left" : "right"]: "20px",
-            width: 0,
-            height: 0,
-            borderLeft: "8px solid transparent",
-            borderRight: "8px solid transparent",
-            borderTop: `8px solid ${color}`,
-          }}
-        />
       </div>
     </>
   );

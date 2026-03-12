@@ -78,7 +78,7 @@ export default function SetupPanel() {
         {/* Title */}
         <h1
           style={{
-            fontSize: "32px",
+            fontSize: "var(--fs-xl)",
             color: "#9d8fff",
             animation: "titleGlow 3s ease-in-out infinite",
             marginBottom: "8px",
@@ -89,7 +89,7 @@ export default function SetupPanel() {
         </h1>
         <p
           style={{
-            fontSize: "9px",
+            fontSize: "var(--fs-md)",
             color: "#8a7a6a",
             marginBottom: "40px",
             textAlign: "center",
@@ -111,7 +111,7 @@ export default function SetupPanel() {
         >
           {/* Model A */}
           <div>
-            <label style={{ fontSize: "8px", color: "#e8dcc8", marginBottom: "10px", display: "block" }}>
+            <label style={{ fontSize: "var(--fs-sm)", color: "#e8dcc8", marginBottom: "10px", display: "block" }}>
               MODEL A
             </label>
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
@@ -121,7 +121,7 @@ export default function SetupPanel() {
                   onClick={() => setModelA(m)}
                   style={{
                     fontFamily: "'Press Start 2P', monospace",
-                    fontSize: "8px",
+                    fontSize: "var(--fs-sm)",
                     padding: "10px 12px",
                     borderRadius: "6px",
                     border: modelA.id === m.id ? `2px solid ${m.color}` : "2px solid #2a2a4a",
@@ -171,7 +171,7 @@ export default function SetupPanel() {
 
           {/* Mode selector */}
           <div>
-            <label style={{ fontSize: "8px", color: "#e8dcc8", marginBottom: "10px", display: "block" }}>
+            <label style={{ fontSize: "var(--fs-sm)", color: "#e8dcc8", marginBottom: "10px", display: "block" }}>
               MODE
             </label>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
@@ -181,7 +181,7 @@ export default function SetupPanel() {
                   onClick={() => setMode(m.value)}
                   style={{
                     fontFamily: "'Press Start 2P', monospace",
-                    fontSize: "8px",
+                    fontSize: "var(--fs-sm)",
                     padding: "10px 8px",
                     borderRadius: "6px",
                     border: mode === m.value ? "2px solid #7c6cd4" : "2px solid #2a2a4a",
@@ -199,7 +199,7 @@ export default function SetupPanel() {
 
           {/* Topic selector */}
           <div>
-            <label style={{ fontSize: "8px", color: "#e8dcc8", marginBottom: "10px", display: "block" }}>
+            <label style={{ fontSize: "var(--fs-sm)", color: "#e8dcc8", marginBottom: "10px", display: "block" }}>
               TOPIC
             </label>
             <select
@@ -214,7 +214,7 @@ export default function SetupPanel() {
               }}
               style={{
                 fontFamily: "'Press Start 2P', monospace",
-                fontSize: "7px",
+                fontSize: "var(--fs-xs)",
                 padding: "10px",
                 borderRadius: "6px",
                 border: "2px solid #2a2a4a",
@@ -241,7 +241,7 @@ export default function SetupPanel() {
                 onChange={(e) => setCustomTopic(e.target.value)}
                 style={{
                   fontFamily: "'Press Start 2P', monospace",
-                  fontSize: "7px",
+                  fontSize: "var(--fs-xs)",
                   padding: "10px",
                   borderRadius: "6px",
                   border: "2px solid #7c6cd4",
@@ -257,7 +257,7 @@ export default function SetupPanel() {
 
         {/* API Key */}
         <div style={{ maxWidth: "680px", width: "100%", marginTop: "24px" }}>
-          <label style={{ fontSize: "8px", color: "#e8dcc8", marginBottom: "10px", display: "block" }}>
+          <label style={{ fontSize: "var(--fs-sm)", color: "#e8dcc8", marginBottom: "10px", display: "block" }}>
             GROQ API KEY (OPTIONAL FOR DEMO)
           </label>
           <input
@@ -267,7 +267,7 @@ export default function SetupPanel() {
             onChange={(e) => setApiKey(e.target.value)}
             style={{
               fontFamily: "'Press Start 2P', monospace",
-              fontSize: "8px",
+              fontSize: "var(--fs-sm)",
               padding: "12px",
               borderRadius: "6px",
               border: "2px solid #2a2a4a",
@@ -283,7 +283,7 @@ export default function SetupPanel() {
               e.target.style.borderColor = "#2a2a4a";
             }}
           />
-          <p style={{ fontSize: "7px", color: "#8a7a6a", marginTop: "6px" }}>
+          <p style={{ fontSize: "var(--fs-xs)", color: "#8a7a6a", marginTop: "6px" }}>
             Get your key at{" "}
             <a
               href="https://console.groq.com"
@@ -302,7 +302,7 @@ export default function SetupPanel() {
           disabled={!isReady}
           style={{
             fontFamily: "'Press Start 2P', monospace",
-            fontSize: "12px",
+            fontSize: "var(--fs-lg)",
             padding: "16px 32px",
             borderRadius: "8px",
             border: isReady ? "2px solid #7c6cd4" : "2px solid #2a2a4a",

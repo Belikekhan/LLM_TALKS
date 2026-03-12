@@ -47,7 +47,7 @@ export default function Transcript({ messages }: TranscriptProps) {
               alignItems: "flex-start",
               marginBottom: "8px",
               fontFamily: "'Press Start 2P', monospace",
-              fontSize: "7px",
+              fontSize: "var(--fs-md)",
               lineHeight: "1.8",
             }}
           >

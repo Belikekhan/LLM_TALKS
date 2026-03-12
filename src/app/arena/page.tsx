@@ -9,9 +9,17 @@ import CampfireScene from "@/components/scene/CampfireScene";
 export default function ArenaPage() {
   const router = useRouter();
   const config = useConversationStore((s) => s.config);
-  const clearConfig = useConversationStore((s) => s.clearConfig);
-  const { messages, currentSpeaker, isLoading, turn, running, start, pause, resume, reset } =
-    useOrchestrator(config);
+  const {
+    messages,
+    currentSpeaker,
+    isLoading,
+    isThinking,
+    turn,
+    running,
+    start,
+    pause,
+    resume,
+  } = useOrchestrator(config);
 
   // Redirect if no config
   useEffect(() => {
@@ -28,12 +36,6 @@ export default function ArenaPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config]);
 
-  const handleReset = () => {
-    reset();
-    clearConfig();
-    router.push("/setup");
-  };
-
   if (!config) {
     return (
       <div
@@ -45,7 +47,7 @@ export default function ArenaPage() {
           background: "#0a0a1a",
           color: "#8a7a6a",
           fontFamily: "'Press Start 2P', monospace",
-          fontSize: "10px",
+          fontSize: "var(--fs-md)",
         }}
       >
         Redirecting to setup...
@@ -59,11 +61,11 @@ export default function ArenaPage() {
       messages={messages}
       currentSpeaker={currentSpeaker}
       isLoading={isLoading}
+      isThinking={isThinking}
       turn={turn}
       running={running}
       onPause={pause}
       onResume={resume}
-      onReset={handleReset}
     />
   );
 }
