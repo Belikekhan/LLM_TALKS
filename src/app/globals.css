@@ -3,25 +3,52 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #0a0a1a;
+  --bg-mid: #0f0f2e;
+  --ground: #1a1a2e;
+  --text-primary: #e8dcc8;
+  --text-dim: #8a7a6a;
+  --bubble: #1e1e3a;
+  --bubble-border: #4a4a8a;
+  --accent: #7c6cd4;
+  --accent-glow: #9d8fff;
+  --star: #fffde7;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+html, body {
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #4a4a8a44;
+  border-radius: 2px;
+}
+
+/* Blink animation for cursor */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Select styling */
+select option {
+  background: #1e1e3a;
+  color: #e8dcc8;
 }
